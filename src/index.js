@@ -1,20 +1,14 @@
-import xs from 'xstream';
 import { run } from '@cycle/run';
+import { makeDOMDriver } from '@cycle/dom';
 import { makeHistoryDriver } from '@cycle/history';
+import App from './app';
 
 const drivers = {
+  DOM: makeDOMDriver('#app'),
   history: makeHistoryDriver(),
   debug: x$ => x$.subscribe({ next: console.error })
 };
 
-function main(sources) {
-  const history$ = xs.periodic(1000).take(5).map(i => `some_url_${i}`);
-
-  const sinks = {
-    history: history$,
-    debug: sources.history
-  };
-  return sinks;
-}
+const main = App;
 
 run(main, drivers);
