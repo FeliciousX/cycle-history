@@ -6,6 +6,7 @@ import App from './app';
 const drivers = {
   DOM: makeDOMDriver('#app'),
   history: makeHistoryDriver(),
+  preventDefault: event$ => event$.subscribe({ next: e => e.preventDefault() }),
   debug: x$ => x$.subscribe({ next: console.error })
 };
 

@@ -4,13 +4,27 @@ import { h } from '@cycle/dom';
 import Home from './home';
 import About from './about';
 
-export default function App(sources) {
-  const history$ = xs.periodic(1000).take(5).map(i => `some_url_${i}`);
+const routes = {
+  '/': Home,
+  '/about': About
+};
 
-  const vtree$ = xs.of(h('div#app', {}, [navbar()]));
+export default function App(sources) {
+  const clickHref$ = sources.DOM.select('a').events('click');
+  const history$ = clickHref$.map(ev => ev.target.pathname);
+
+  const vtree$ = sources.history
+    .map(location => location.pathname)
+    .map(pathname => routes[pathname])
+    .map(Component => Component(sources))
+    .map(sinks => sinks.DOM)
+    .flatten()
+    .map(childVnode => h('div#app', {}, [navbar(), childVnode]));
+
   const sinks = {
     DOM: vtree$,
     history: history$,
+    preventDefault: clickHref$,
     debug: sources.history
   };
   return sinks;
